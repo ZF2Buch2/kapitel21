@@ -1,0 +1,94 @@
+<?php 
+/**
+ * ZF2 Buch Kapitel 21
+ * 
+ * Das Buch "Zend Framework 2 - Von den Grundlagen bis zur fertigen Anwendung"
+ * von Ralf Eggert ist im Addison-Wesley Verlag erschienen. 
+ * ISBN 978-3-8273-2994-3
+ * 
+ * @package    Application
+ * @author     Ralf Eggert <r.eggert@travello.de>
+ * @copyright  Alle Listings sind urheberrechtlich geschützt!
+ * @link       http://www.zendframeworkbuch.de/ und http://www.awl.de/2994
+ */
+
+/**
+ * Listing 21.7 view script
+ * 
+ * @package    Application
+ */
+
+$this->headTitle('Listing 21.7');
+$this->pageTitle('Listing 21.7');
+?>
+<h3>Erweiterter <code>CmsContentBlock</code> zum Bearbeiten von Textblöcken</h3>
+<pre>
+&lt;?php
+namespace Cms\View\Helper;
+
+use Cms\Service\CmsServiceInterface;
+use Zend\View\Helper\AbstractHelper;
+
+class CmsContentBlock extends AbstractHelper
+{
+    protected $cmsService;
+
+    public function __construct(CmsServiceInterface $cmsService)
+    {
+        $this->setCmsService($cmsService);
+    }
+
+    public function setCmsService(CmsServiceInterface $cmsService = null)
+    {
+        $this->cmsService = $cmsService;
+        return $this;
+    }
+    
+    public function getCmsService()
+    {
+        return $this->cmsService;
+    }
+    
+    public function __invoke($block, $url)
+    {
+        $content = $this->getCmsService()->loadBlock($block);
+        
+        if (!$this-&gt;getView()-&gt;userIsAllowed('cms')) {
+            return $content;
+        }
+        
+        $this-&gt;getView()-&gt;headScript()-&gt;appendFile(
+            $this-&gt;getView()-&gt;basePath() . '/js/ckeditor/ckeditor.js', 
+            'text/javascript'
+        );
+        
+        $this-&gt;getView()-&gt;headScript()-&gt;appendFile(
+            $this-&gt;getView()-&gt;basePath() . '/js/cms.js',
+            'text/javascript'
+        );
+        
+        $action = $this->getView()->url('cms', array('action' => 'save'));
+        
+        $form = $this->getCmsService()->getForm($block, $url);
+        $form->setAttribute('action', $action);
+        
+        $start = '&lt;div id="' . $block . '_uneditable" class="cms"&gt;';
+        $start.= $content;
+        $start.= '&lt;/div&gt;';
+        
+        $start.= '&lt;div id="' . $block . '" contenteditable="true" style="display: none;"&gt;';
+        
+        $end = '&lt;/div&gt;';
+        $end.= $this-&gt;getView()-&gt;form()-&gt;openTag($form);
+        $end.= $this-&gt;getView()-&gt;formHidden($form-&gt;get('url'));
+        $end.= $this-&gt;getView()-&gt;formHidden($form-&gt;get('block'));
+        $end.= $this-&gt;getView()-&gt;formHidden($form-&gt;get('content'));
+        $end.= $this-&gt;getView()-&gt;formButton($form-&gt;get('cms_edit_' . $block));
+        $end.= $this-&gt;getView()-&gt;formButton($form-&gt;get('cms_save_' . $block));
+        $end.= $this-&gt;getView()-&gt;formButton($form-&gt;get('cms_cancel_' . $block));
+        $end.= $this-&gt;getView()-&gt;form()-&gt;closeTag();
+        
+        return $start . $content . $end;
+    }
+}
+</pre>

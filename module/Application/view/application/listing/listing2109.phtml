@@ -1,0 +1,71 @@
+<?php 
+/**
+ * ZF2 Buch Kapitel 21
+ * 
+ * Das Buch "Zend Framework 2 - Von den Grundlagen bis zur fertigen Anwendung"
+ * von Ralf Eggert ist im Addison-Wesley Verlag erschienen. 
+ * ISBN 978-3-8273-2994-3
+ * 
+ * @package    Application
+ * @author     Ralf Eggert <r.eggert@travello.de>
+ * @copyright  Alle Listings sind urheberrechtlich geschützt!
+ * @link       http://www.zendframeworkbuch.de/ und http://www.awl.de/2994
+ */
+
+/**
+ * Listing 21.9 view script
+ * 
+ * @package    Application
+ */
+
+$this->headTitle('Listing 21.9');
+$this->pageTitle('Listing 21.9');
+?>
+<h3><code>CmsController</code> zum Speichern der Textblöcke</h3>
+<pre>
+&lt;?php
+namespace Cms\Controller;
+
+use Cms\Service\CmsServiceInterface;
+use Zend\Mvc\Controller\AbstractActionController;
+use Zend\View\Model\ViewModel;
+
+class CmsController extends AbstractActionController
+{
+    protected $cmsService;
+
+    public function __construct(CmsServiceInterface $cmsService)
+    {
+        $this->setCmsService($cmsService);
+    }
+
+    public function setCmsService(CmsServiceInterface $cmsService = null)
+    {
+        $this->cmsService = $cmsService;
+        return $this;
+    }
+    
+    public function getCmsService()
+    {
+        return $this->cmsService;
+    }
+    
+    public function indexAction()
+    {
+        return $this->redirect()->toRoute('home');
+    }
+    
+    public function saveAction()
+    {
+        $data = $this->getCmsService()->getFormData(
+            $this->getRequest()->getPost()->toArray()
+        );
+        
+        $this->getCmsService()->saveBlock($data['block'], $data['content']);
+        
+        $this->flashMessenger()->addMessage('Der Block wurde gespeichert!');
+        
+        return $this->redirect()->toUrl($data['url']);
+    }
+}
+</pre>

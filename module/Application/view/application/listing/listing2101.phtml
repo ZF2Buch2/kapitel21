@@ -1,0 +1,70 @@
+<?php 
+/**
+ * ZF2 Buch Kapitel 21
+ * 
+ * Das Buch "Zend Framework 2 - Von den Grundlagen bis zur fertigen Anwendung"
+ * von Ralf Eggert ist im Addison-Wesley Verlag erschienen. 
+ * ISBN 978-3-8273-2994-3
+ * 
+ * @package    Application
+ * @author     Ralf Eggert <r.eggert@travello.de>
+ * @copyright  Alle Listings sind urheberrechtlich geschützt!
+ * @link       http://www.zendframeworkbuch.de/ und http://www.awl.de/2994
+ */
+
+/**
+ * Listing 21.1 view script
+ * 
+ * @package    Application
+ */
+
+$this->headTitle('Listing 21.1');
+$this->pageTitle('Listing 21.1');
+?>
+<h3>Modulkonfiguration für <code>Cms</code> Modul</h3>
+<pre>
+&lt;?php
+return array(
+    'router' => array(
+        'routes' => array(
+            'cms' => array(
+                'type'    => 'segment',
+                'options' => array(
+                    'route'    => '/cms[/:action]',
+                    'constraints' => array(
+                        'action' => '[a-zA-Z][a-zA-Z0-9-]*',
+                    ),
+                    'defaults' => array(
+                        'controller' => 'cms',
+                        'action'     => 'index',
+                    ),
+                ),
+            ),
+        ),
+    ),
+    
+    'controllers' => array(
+        'invokables' => array(
+            'cms' => 'Cms\Controller\CmsController',
+        ),
+    ),
+    
+    'service_manager' => array(
+        'invokables' => array(
+            'Cms\Service\Cms' => 'Cms\Service\CmsService',
+        ),
+    ),
+    
+    'view_helpers' => array(
+        'factories'=> array(
+            'CmsContentBlock' => 'Cms\View\Helper\CmsContentBlockFactory',
+        ),
+    ),
+    
+    'acl' => array(
+        'admin'   => array(
+            'cms' => array('allow' => null),
+        ),
+    ),
+);
+</pre>
